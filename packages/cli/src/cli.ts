@@ -1,102 +1,108 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import dotenv from 'dotenv';
-import {
-  ConfigManager,
-  ProcessorFactory,
-  ConsoleLogger,
-  type ProcessorConfig,
-} from '@phylo/processor';
-
-// Load environment variables from .env file
-dotenv.config();
+import { ConfigManager, ProcessorFactory, ConsoleLogger } from '@phylo/processor';
+import { VersionChecker } from './VersionChecker.js';
+import { EnvironmentLoader } from './EnvironmentLoader.js';
+import { GlobalConfigManager } from './GlobalConfigManager.js';
+import { ProjectConfigInitializer } from './ProjectConfigInitializer.js';
 
 /**
- * Generate a default config with example processors
+ * Main CLI application
  */
-function generateDefaultConfig(): ProcessorConfig {
-  return {
-    input_folder: './input',
-    max_batch_size: null,
-    last_processed_file: null,
-    input_file_pattern: '**/*.md',
-    processors: {
-      main: {
-        prompt_files: ['prompts/instructions.md'],
-        model: 'gpt-4o',
-        output_folder: './output',
-        output_file_extension: '.md',
-      },
-    },
-    env: {
-      OPENAI_API_KEY: '',
-      ANTHROPIC_API_KEY: '',
-      GOOGLE_API_KEY: '',
-      MISTRAL_API_KEY: '',
-      GROQ_API_KEY: '',
-      OPENROUTER_API_KEY: '',
-      COHERE_API_KEY: '',
-      TOGETHER_API_KEY: '',
-      PERPLEXITY_API_KEY: '',
-      FIREWORKS_API_KEY: '',
-    },
-  };
-}
+class PhyloCLI {
+  private readonly program: Command;
+  private readonly versionChecker: VersionChecker;
+  private readonly environmentLoader: EnvironmentLoader;
+  private readonly globalConfigManager: GlobalConfigManager;
 
-const program = new Command();
+  constructor() {
+    this.program = new Command();
+    this.versionChecker = new VersionChecker();
+    this.environmentLoader = new EnvironmentLoader();
+    this.globalConfigManager = new GlobalConfigManager();
 
-program
-  .name('phylo')
-  .description('Config-driven AI file processor for markdown files')
-  .version('1.0.0');
+    this.configureProgram();
+  }
 
-program
-  .option('-c, --config <path>', 'Path to JSON config file')
-  .option('--init', 'Generate a config file with all available options')
-  .action(async (options: { config?: string; init?: boolean }) => {
+  /**
+   * Configure command-line program
+   */
+  private configureProgram(): void {
+    this.program
+      .name('phylo-cli')
+      .description('Config-driven AI file processor for markdown files')
+      .version(this.versionChecker.getCurrentVersion());
+
+    this.program
+      .option('-c, --config <path>', 'Path to JSON config file')
+      .option('--init', 'Generate a config file with all available options')
+      .option('--setup-keys', 'Create global config file for API keys')
+      .action(async (options) => this.handleCommand(options));
+  }
+
+  /**
+   * Handle command execution
+   */
+  private async handleCommand(options: {
+    config?: string;
+    init?: boolean;
+    setupKeys?: boolean;
+  }): Promise<void> {
     const logger = new ConsoleLogger();
 
     try {
+      // Check for updates in background (non-blocking)
+      this.versionChecker.checkForUpdates(logger).catch(() => {
+        // Silently fail
+      });
+
+      // Load environment variables
+      await this.environmentLoader.load(logger);
+
+      // Handle --setup-keys flag
+      if (options.setupKeys) {
+        await this.globalConfigManager.setup(logger);
+        return;
+      }
+
       // Handle --init flag
       if (options.init) {
-        const configPath = join(process.cwd(), 'phylo.config.json');
-
-        if (existsSync(configPath)) {
-          logger.error(`Config file already exists: ${configPath}`);
-          process.exit(1);
-        }
-
-        const defaultConfig = generateDefaultConfig();
-        await writeFile(configPath, JSON.stringify(defaultConfig, null, 2), {
-          encoding: 'utf-8',
-        });
-
-        logger.success(`Created config file: ${configPath}`);
-        logger.info('Edit the file to configure your input folder, processors, prompts, and API keys.');
-        logger.info('');
-        logger.info('To chain multiple processors, add more entries to "processors" and use "output_processor":');
-        logger.dim('  "analysis": { "prompt_files": [...], "output_processor": "refinement" }');
-        logger.dim('  "refinement": { "prompt_files": [...], "output_folder": "./output" }');
+        const initializer = new ProjectConfigInitializer();
+        await initializer.initialize(logger);
         return;
       }
 
       // Process with config file
       if (!options.config) {
-        logger.error('Error: --config <path> is required when not using --init');
+        logger.error('Error: --config <path> is required when not using --init or --setup-keys');
         process.exit(1);
       }
 
-      const configManager = await ConfigManager.load(options.config, logger);
-      const processor = ProcessorFactory.create(configManager, logger);
-      await processor.process();
+      await this.processFiles(options.config, logger);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error(`Error: ${errorMessage}`);
       process.exit(1);
     }
-  });
+  }
 
-program.parse();
+  /**
+   * Process files with the given config
+   */
+  private async processFiles(configPath: string, logger: ConsoleLogger): Promise<void> {
+    const configManager = await ConfigManager.load(configPath, logger);
+    const processor = ProcessorFactory.create(configManager, logger);
+    await processor.process();
+  }
+
+  /**
+   * Run the CLI application
+   */
+  run(): void {
+    this.program.parse();
+  }
+}
+
+// Bootstrap application
+const cli = new PhyloCLI();
+cli.run();

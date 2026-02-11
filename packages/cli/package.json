@@ -1,16 +1,17 @@
 {
-  "name": "@phylo/cli",
+  "name": "phylo-cli",
   "version": "1.0.0",
-  "description": "Phylo CLI - Config-driven AI file processor command line tool",
+  "description": "Config-driven AI file processor CLI - process markdown files with OpenAI, Claude, Gemini and more",
   "type": "module",
   "bin": {
-    "phylo": "dist/cli.js"
+    "phylo-cli": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
     "dev": "tsx src/cli.ts",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "ai",
@@ -18,10 +19,25 @@
     "processor",
     "openai",
     "anthropic",
-    "claude"
+    "claude",
+    "gemini",
+    "llm",
+    "batch-processing",
+    "markdown",
+    "file-processing",
+    "automation"
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SeeingSharper/ai-journal-analysis.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/SeeingSharper/ai-journal-analysis/issues"
+  },
+  "homepage": "https://github.com/SeeingSharper/ai-journal-analysis#readme",
   "dependencies": {
     "@phylo/processor": "*",
     "commander": "^12.1.0",
@@ -35,7 +51,11 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "dist"
-  ]
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
 
