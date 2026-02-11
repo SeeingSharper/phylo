@@ -31,13 +31,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SeeingSharper/ai-journal-analysis.git",
+    "url": "https://github.com/SeeingSharper/phylo.git",
     "directory": "packages/cli"
   },
   "bugs": {
-    "url": "https://github.com/SeeingSharper/ai-journal-analysis/issues"
+    "url": "https://github.com/SeeingSharper/phylo/issues"
   },
-  "homepage": "https://github.com/SeeingSharper/ai-journal-analysis#readme",
+  "homepage": "https://github.com/SeeingSharper/phylo#readme",
   "dependencies": {
     "@phylo/processor": "*",
     "commander": "^12.1.0",
