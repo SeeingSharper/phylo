@@ -34,7 +34,6 @@ export class ProcessorFactory {
     // Create processors in reverse order (terminal first)
     for (const name of processorOrder.reverse()) {
       const processorConfig = configManager.getProcessorConfig(name);
-      const isEntry = name === entryName;
 
       // Determine the output writer
       let outputWriter: OutputWriter;
@@ -42,7 +41,7 @@ export class ProcessorFactory {
         // Terminal processor - writes to file
         outputWriter = new FileOutputWriter({
           outputFolder: processorConfig.output_folder,
-          configManager: isEntry ? configManager : undefined,
+          configManager: configManager,
           fileExtension: processorConfig.output_file_extension,
         });
       } else if (processorConfig.output_processor) {
@@ -65,7 +64,7 @@ export class ProcessorFactory {
       // Create the processor
       const processor = new Processor({
         name,
-        inputReader: isEntry
+        inputReader: name === entryName
           ? new FileInputReader({
               inputFolder: config.input_folder,
               lastProcessed: config.last_processed_file,
