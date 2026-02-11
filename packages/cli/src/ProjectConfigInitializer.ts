@@ -1,18 +1,16 @@
-import { writeFile, readFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ConsoleLogger, ProcessorConfig } from '@phylo/processor';
+import type { ConsoleLogger, ProcessorConfig } from 'phylo-processor';
 
 /**
  * Initializes project configuration files
  */
 export class ProjectConfigInitializer {
   private readonly configPath: string;
-  private readonly gitignorePath: string;
 
   constructor(workingDirectory: string = process.cwd()) {
     this.configPath = join(workingDirectory, 'phylo.config.json');
-    this.gitignorePath = join(workingDirectory, '.gitignore');
   }
 
   /**
@@ -25,7 +23,6 @@ export class ProjectConfigInitializer {
     }
 
     await this.createConfigFile();
-    await this.ensureGitignore(logger);
     this.showSuccessMessage(logger);
   }
 
@@ -78,42 +75,16 @@ export class ProjectConfigInitializer {
     };
   }
 
-  /**
-   * Ensure .gitignore exists and has proper entries
-   */
-  private async ensureGitignore(logger: ConsoleLogger): Promise<void> {
-    const gitignoreContent = `.env
-*.config.json
-phylo.config.json
-`;
-
-    if (!existsSync(this.gitignorePath)) {
-      await writeFile(this.gitignorePath, gitignoreContent, { encoding: 'utf-8' });
-      logger.success('Created .gitignore');
-    } else {
-      await this.checkGitignoreEntries(logger);
-    }
-  }
-
-  /**
-   * Check if .gitignore has necessary entries
-   */
-  private async checkGitignoreEntries(logger: ConsoleLogger): Promise<void> {
-    const existing = await readFile(this.gitignorePath, { encoding: 'utf-8' });
-
-    if (!existing.includes('phylo.config.json')) {
-      logger.warn('');
-      logger.warn('Add to .gitignore to prevent committing config:');
-      logger.dim('  phylo.config.json');
-      logger.dim('  .env');
-    }
-  }
 
   /**
    * Show success message with usage instructions
    */
   private showSuccessMessage(logger: ConsoleLogger): void {
     logger.success(`Created config file: ${this.configPath}`);
+    logger.info('');
+    logger.warn('IMPORTANT: Add to .gitignore to avoid committing secrets:');
+    logger.dim('  phylo.config.json');
+    logger.dim('  .env');
     logger.info('');
     logger.info('Edit the file to configure your input folder, processors, and prompts.');
     logger.info('');

@@ -1,6 +1,6 @@
 {
   "name": "phylo-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Config-driven AI file processor CLI - process markdown files with OpenAI, Claude, Gemini and more",
   "type": "module",
   "bin": {
@@ -27,7 +27,7 @@
     "file-processing",
     "automation"
   ],
-  "author": "",
+  "author": "Tony Hicks (seeingsharper@gmail.com)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/SeeingSharper/phylo#readme",
   "dependencies": {
-    "@phylo/processor": "*",
+    "phylo-processor": "*",
     "commander": "^12.1.0",
     "dotenv": "^16.4.7"
   },

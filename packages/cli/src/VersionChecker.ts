@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { ConsoleLogger } from '@phylo/processor';
+import type { ConsoleLogger } from 'phylo-processor';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

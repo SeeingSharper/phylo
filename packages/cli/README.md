@@ -545,7 +545,7 @@ MIT
 ## Related Projects
 
 - [abso-ai](https://github.com/dosco/abso) - Universal AI API client
-- [@phylo/processor](../processor/) - Core processing library
+- [phylo-processor](../processor/) - Core processing library
 
 ## Contributing
 

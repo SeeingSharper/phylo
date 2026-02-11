@@ -3,7 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import dotenv from 'dotenv';
-import type { ConsoleLogger } from '@phylo/processor';
+import type { ConsoleLogger } from 'phylo-processor';
 
 /**
  * Loads environment variables from multiple sources with proper priority

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { ConfigManager, ProcessorFactory, ConsoleLogger } from '@phylo/processor';
+import { ConfigManager, ProcessorFactory, ConsoleLogger } from 'phylo-processor';
 import { VersionChecker } from './VersionChecker.js';
 import { EnvironmentLoader } from './EnvironmentLoader.js';
 import { GlobalConfigManager } from './GlobalConfigManager.js';

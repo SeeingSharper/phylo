@@ -2,7 +2,7 @@ import { writeFile, chmod, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import type { ConsoleLogger } from '@phylo/processor';
+import type { ConsoleLogger } from 'phylo-processor';
 
 /**
  * Manages global API key configuration at ~/.phylo/config
